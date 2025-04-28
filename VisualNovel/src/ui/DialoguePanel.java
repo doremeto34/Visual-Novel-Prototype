@@ -12,7 +12,7 @@ public class DialoguePanel extends JPanel {
         setOpaque(false);
         setLayout(new BorderLayout()); // still allow adding text inside
     }
-
+    
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);

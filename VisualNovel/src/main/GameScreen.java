@@ -16,16 +16,19 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.List;
 import java.util.ArrayList;
+import ui.ClickIndicator;
+import ui.DialogueTextArea;
 
 public class GameScreen extends JFrame {
     private JLabel backgroundLabel;
     private JLabel characterLabel;
     private JPanel dialoguePanel;
     private ChoicePanel choicePanel;
-    private JTextArea dialogueTextArea;
-    private JLabel clickIndicator;
+    private DialogueTextArea dialogueTextArea;
     private Timer blinkTimer;
     private NameLabel nameLabel;
+    private ClickIndicator clickIndicator;
+    
 
     public Scene currentScene;
     //private int dialogueIndex = 0;
@@ -43,7 +46,7 @@ public class GameScreen extends JFrame {
         setLayout(null);
         setResizable(false);
 
-        // Load the 
+        // Load stats 
         SaveLoadPanel saveLoadPanel = new SaveLoadPanel(this, playerStats);
         SceneManager sceneManager = new SceneManager(playerStats, this);
         currentScene = sceneManager.getScene(playerStats.sceneId);
@@ -54,7 +57,7 @@ public class GameScreen extends JFrame {
         backgroundLabel.setBounds(0, 0, 800, 600);
 
         // Character (start with first character in scene)
-        ImageIcon charIcon = ImageUtils.loadScaledImage(currentScene.dialogues[0].characterPath, 300, 400);
+        ImageIcon charIcon = ImageUtils.loadScaledImage(currentScene.dialogues[playerStats.dialogueIndex].characterPath, 300, 400);
         characterLabel = new JLabel(charIcon);
         characterLabel.setBounds(350, 100, 300, 400);
 
@@ -63,31 +66,11 @@ public class GameScreen extends JFrame {
         dialoguePanel.setBounds(50, 430, 700, 150);
 
         // Click Indicator
-        clickIndicator = new JLabel("▶");
-        clickIndicator.setFont(new Font("SansSerif", Font.PLAIN, 15));
-        clickIndicator.setForeground(Color.WHITE);
-        clickIndicator.setVisible(false);
-        clickIndicator.setBounds(660, 110, 15, 15);
-        dialoguePanel.add(clickIndicator);
-
-        blinkTimer = new Timer(500, new ActionListener() {
-            private boolean visible = true;
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                clickIndicator.setVisible(visible);
-                visible = !visible;
-            }
-        });
+        clickIndicator = new ClickIndicator();
+        dialoguePanel.add(clickIndicator);    
 
         // Dialogue TextArea
-        dialogueTextArea = new JTextArea();
-        dialogueTextArea.setWrapStyleWord(true);
-        dialogueTextArea.setLineWrap(true);
-        dialogueTextArea.setEditable(false);
-        dialogueTextArea.setFocusable(false);
-        dialogueTextArea.setOpaque(false);
-        dialogueTextArea.setForeground(Color.WHITE);
-        dialogueTextArea.setFont(new Font("Verdana", Font.PLAIN, 20));
+        dialogueTextArea = new DialogueTextArea();
         dialoguePanel.add(dialogueTextArea, BorderLayout.CENTER);
 
         // Choice Panel settings
@@ -127,8 +110,7 @@ public class GameScreen extends JFrame {
 
             if ("__CHOICE__".equals(entry.text)) {
                 // This is a choice point!
-                blinkTimer.stop();
-                clickIndicator.setVisible(false);
+                clickIndicator.stopBlinking();
                 showChoicesPanel(entry.choices);
             } else {
                 // Normal dialogue
@@ -147,14 +129,13 @@ public class GameScreen extends JFrame {
                     ImageIcon newCharIcon = ImageUtils.loadScaledImage(entry.characterPath, 300, 400);
                     characterLabel.setIcon(newCharIcon);
                 }
-                clickIndicator.setVisible(true);
-                blinkTimer.start();
+                clickIndicator.startBlinking();
             }
 
             playerStats.dialogueIndex++;
         } else {
             dialogueTextArea.setText("The End.");
-            blinkTimer.stop();
+            clickIndicator.stopBlinking();
         }
     }
 
@@ -171,29 +152,25 @@ public class GameScreen extends JFrame {
     public void loadScene(int sceneId,int dialogueIndex) {
         // Save new sceneId to PlayerStats if needed
         playerStats.sceneId = sceneId;
-
         // Load scene from manager
         currentScene = SceneManager.getScene(sceneId);
         if (currentScene == null) {
             System.out.println("Scene not found: " + sceneId);
             return;
         }
-
-        // Reset dialogue index
-        //playerStats.dialogueIndex = 0;
-
         // Update background
         ImageIcon bgIcon = ImageUtils.loadScaledImage(currentScene.backgroundPath, 800, 600);
         backgroundLabel.setIcon(bgIcon);
 
         // Update first character image
+        /*
         if (currentScene.dialogues.length > 0) {
             ImageIcon charIcon = ImageUtils.loadScaledImage(currentScene.dialogues[0].characterPath, 300, 400);
             characterLabel.setIcon(charIcon);
         } else {
             characterLabel.setIcon(null); // No character
         }
-
+        */
         // Start first dialogue
         showNextDialogue();
     }
