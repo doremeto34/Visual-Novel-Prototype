@@ -18,6 +18,8 @@ public class SaveLoadScreen extends JFrame {
     private GameScreen gameScreen;
     private TitleScreen titleScreen;
     private SceneManager sceneManager;
+    private MovingBackgroundPanel backgroundPanel;
+
     private boolean isSaving; // true = save mode, false = load mode
     private static final int SLOT_COUNT = 6;
 
@@ -25,18 +27,23 @@ public class SaveLoadScreen extends JFrame {
         this.gameScreen = gameScreen;
         this.titleScreen = titleScreen;
         this.isSaving = isSaving;
-        sceneManager = new SceneManager(null,null);
-        
+        this.sceneManager = new SceneManager(null, null);
 
         setTitle(isSaving ? "Save Game" : "Load Game");
         setSize(800, 600);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setLayout(new BorderLayout());
+        setResizable(false);
 
+        // 1. Moving Fullscreen Background
+        backgroundPanel = new MovingBackgroundPanel("assets/backgrounds/anime_bg.jpg"); // You can pick another background if you want
+        backgroundPanel.setLayout(new BorderLayout()); 
+        setContentPane(backgroundPanel); // Important: set background as content pane
+
+        // 2. Save/Load Slots
         JPanel slotsPanel = new JPanel(new GridLayout(2, 3, 20, 20));
         slotsPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-        slotsPanel.setOpaque(false);
+        slotsPanel.setOpaque(false); // transparent so background shows
 
         for (int i = 1; i <= SLOT_COUNT; i++) {
             int slotNumber = i;
@@ -55,10 +62,10 @@ public class SaveLoadScreen extends JFrame {
             slotsPanel.add(slotContainer);
         }
 
-        add(slotsPanel, BorderLayout.CENTER);
+        backgroundPanel.add(slotsPanel, BorderLayout.CENTER);
 
-        // Back button
-        JButton backButton = createStyledButton("⬅ Back");
+        // 3. Back Button
+        JButton backButton = createStyledButton("◀ Back");
         backButton.setPreferredSize(new Dimension(150, 40));
         backButton.addActionListener(e -> {
             if (gameScreen != null) {
@@ -73,10 +80,7 @@ public class SaveLoadScreen extends JFrame {
         backPanel.setOpaque(false);
         backPanel.add(backButton);
 
-        add(backPanel, BorderLayout.SOUTH);
-
-        // Set background color
-        getContentPane().setBackground(new Color(30, 30, 30));
+        backgroundPanel.add(backPanel, BorderLayout.SOUTH);
 
         setVisible(true);
     }
@@ -107,35 +111,33 @@ public class SaveLoadScreen extends JFrame {
     }
 
     private JButton createStyledButton(String text) {
-        JButton button = new JButton(text) {
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-                g2.setColor(new Color(70, 130, 180, 180)); // soft blue
-                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
-
-                super.paintComponent(g2);
-                g2.dispose();
-            }
-
-            @Override
-            protected void paintBorder(Graphics g) {
-                // no border
-            }
-        };
-
+        JButton button = new JButton(text);
+        
         button.setOpaque(false);
         button.setContentAreaFilled(false);
         button.setBorderPainted(false);
         button.setFocusPainted(false);
         button.setForeground(Color.WHITE);
-        button.setFont(new Font("SansSerif", Font.BOLD, 16));
+        button.setFont(new Font("Dialog", Font.BOLD, 22));
         button.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        button.setPreferredSize(new Dimension(200, 60));
+        button.setHorizontalAlignment(SwingConstants.CENTER);
+
+        // Hover effect: change to yellow
+        button.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                button.setForeground(new Color(255,200,0));
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                button.setForeground(Color.WHITE);
+            }
+        });
+
         return button;
     }
+
 
     private JButton createThumbnailButton(int slotNumber) {
         String filename = "save" + slotNumber + ".dat";

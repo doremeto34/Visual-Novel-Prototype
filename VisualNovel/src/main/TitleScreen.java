@@ -3,128 +3,129 @@ package main;
 import javax.swing.*;
 
 import story.SceneManager;
+import ui.MovingBackgroundPanel;
 import ui.SaveLoadScreen;
 import util.SaveManager;
 
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
 public class TitleScreen extends JFrame {
-    private JLabel backgroundLabel;
-    private JLabel logoLabel;
-    private JPanel btnPanel;
+    private MovingBackgroundPanel backgroundPanel;
+    private JPanel menuPanel;
 
     public TitleScreen() {
         setTitle("Visual Novel");
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
-        setLayout(null); // Absolute positioning
+        setLayout(null); 
+        setResizable(false);
 
-        
-        // 1. Background
-        backgroundLabel = new JLabel(new ImageIcon("assets/backgrounds/title_bg.jpg"));
-        backgroundLabel.setBounds(0, 0, 800, 600);
-        add(backgroundLabel);
+        // 1. Moving Fullscreen Background
+        backgroundPanel = new MovingBackgroundPanel("assets/backgrounds/anime_bg.jpg");
+        backgroundPanel.setBounds(0, 0, 800, 600);
+        setContentPane(backgroundPanel); // <-- important: set background as content pane
+        backgroundPanel.setLayout(null); // free positioning
 
-        // 2. Game Logo
-        logoLabel = new JLabel(new ImageIcon("assets/backgrounds/logo.png"));
-        logoLabel.setBounds(200, 100, 400, 100); // (x, y, width, height)
-        backgroundLabel.add(logoLabel);
-        // 3. Button Panel
-        btnPanel = new JPanel();
-        btnPanel.setOpaque(false); // transparent so background shows through
-        btnPanel.setLayout(new GridLayout(2, 1, 20, 20));
-        btnPanel.setSize(300, 150);
+     // 2. Menu Panel (Translucent Panel on the left)
+        menuPanel = new JPanel();
+        menuPanel.setOpaque(true); // Transparent
+        menuPanel.setBackground(new Color(0, 0, 0, 150)); // Semi-transparent background
+        menuPanel.setLayout(new BoxLayout(menuPanel, BoxLayout.Y_AXIS)); // Vertical layout for options
+        menuPanel.setBounds(30, 0, 200, 600); // Set position and size
 
-        int panelX = (800 - 300) / 2;
-        int panelY = 400;
-        btnPanel.setBounds(panelX,panelY,300,150);
+        // Create text options
+        JLabel newGameLabel = createMenuOption("New Game");
+        JLabel loadGameLabel = createMenuOption("Load Game");
+        JLabel settingsLabel = createMenuOption("Settings");
+        JLabel creditsLabel = createMenuOption("Credits");
+        JLabel exitLabel = createMenuOption("Exit");
 
-     // Create ImageIcons
-        ImageIcon newGameIcon = new ImageIcon("assets/buttons/new_game.png");
-        ImageIcon newGameHoverIcon = new ImageIcon("assets/buttons/new_game_hover.png");
+        // Add vertical glue before and after the labels to center them
+        menuPanel.add(Box.createVerticalGlue()); // Adds space before the first label
+        menuPanel.add(newGameLabel);
+        menuPanel.add(loadGameLabel);
+        menuPanel.add(settingsLabel);
+        menuPanel.add(creditsLabel);
+        menuPanel.add(exitLabel);
+        menuPanel.add(Box.createVerticalGlue()); // Adds space after the last label
 
-        ImageIcon loadGameIcon = new ImageIcon("assets/buttons/load_game.png");
-        ImageIcon loadGameHoverIcon = new ImageIcon("assets/buttons/load_game_hover.png");
+        // Add the menu panel to the background panel
+        backgroundPanel.add(menuPanel); // menu floats over background
 
-        // Create Buttons
-        JButton newGameBtn = new JButton(newGameIcon);
-        JButton loadGameBtn = new JButton(loadGameIcon);
 
-        // Make buttons transparent
-        newGameBtn.setBorderPainted(false);
-        newGameBtn.setContentAreaFilled(false);
-        newGameBtn.setFocusPainted(false);
-
-        loadGameBtn.setBorderPainted(false);
-        loadGameBtn.setContentAreaFilled(false);
-        loadGameBtn.setFocusPainted(false);
-
-        // Add hover effects
-        newGameBtn.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                newGameBtn.setIcon(newGameHoverIcon);
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                newGameBtn.setIcon(newGameIcon);
+        // Option actions
+        newGameLabel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                PlayerStats stats = new PlayerStats();
+                new GameScreen(stats);
+                dispose();
             }
         });
 
-        loadGameBtn.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                loadGameBtn.setIcon(loadGameHoverIcon);
+        loadGameLabel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                new SaveLoadScreen(null, TitleScreen.this, false);
+                dispose();
             }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                loadGameBtn.setIcon(loadGameIcon);
+        });
+
+        settingsLabel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                // TODO: Settings screen
             }
         });
-        // CLICK
-        newGameBtn.addActionListener(e -> {
-        	// Disable both buttons immediately
-            newGameBtn.setEnabled(false);
-            loadGameBtn.setEnabled(false);
-            FadePanel fadePanel = new FadePanel();
-            backgroundLabel.add(fadePanel);
-            backgroundLabel.setComponentZOrder(fadePanel, 0);
-            backgroundLabel.revalidate();
-            backgroundLabel.repaint();
 
-            Timer timer = new Timer(0, null);
-            timer.addActionListener(new ActionListener() {
-                float alpha = 0f;
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    alpha += 0.02f;
-                    if (alpha >= 1f) { 
-                        alpha = 1f;
-                        timer.stop();
-                        PlayerStats stats = new PlayerStats();
-                        new GameScreen(stats);
-                        dispose();
-                    }
-                    fadePanel.setAlpha(alpha);
-                }
-            });
-            timer.start();
+        creditsLabel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                // TODO: Credits screen
+            }
         });
 
-        // LOAD GAME
-        loadGameBtn.addActionListener(e -> {
-        	// Disable both buttons immediately
-        	new SaveLoadScreen(null, TitleScreen.this, false); // false = load mode
-            dispose();
+        exitLabel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                System.exit(0);
+            }
         });
 
-
-        btnPanel.add(newGameBtn);
-        btnPanel.add(loadGameBtn);
-
-        backgroundLabel.add(btnPanel); // add button panel to background
-
-
-        //
         setVisible(true);
+    }
+
+    // Helper method to create a menu option with hover effect (text only)
+    private JLabel createMenuOption(String text) {
+        JLabel label = new JLabel(text);
+        label.setFont(new Font("Verdana", Font.BOLD, 18));
+        label.setForeground(Color.WHITE);
+        label.setOpaque(false); // Make label background transparent
+        label.setAlignmentX(Component.CENTER_ALIGNMENT); // Center-align text
+        label.setPreferredSize(new Dimension(180, 40)); // Adjust size
+
+        // Hover effect: change text color on hover
+        label.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                label.setForeground(new Color(255, 200, 0)); // Change text color on hover (gold)
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                label.setForeground(Color.WHITE); // Reset text color when mouse leaves
+            }
+
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                // Optional: Play a sound or add a click effect
+            }
+        });
+
+        return label;
     }
 }
 

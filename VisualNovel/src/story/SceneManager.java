@@ -29,7 +29,7 @@ public class SceneManager {
                 new DialogueEntry("Bob","Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam!", "assets/characters/bob.png"),
                 new DialogueEntry("Bob","3rd text!", "assets/characters/alice.png"),
                 new DialogueEntry(List.of(
-                    new Choice("Explore the forest", () -> {
+                    new Choice("Explore the forest, let's make this dialogue longer that reach panel limit, testing the html aspect. phonocorrection text is tested", () -> {
                         if (playerStats.stat1 > -1) {
                             //System.out.println("You are healthy enough to explore!");
                             gameScreen.transitionToScene(2);
