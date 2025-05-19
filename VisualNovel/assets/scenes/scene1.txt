@@ -1,0 +1,18 @@
+assets/backgrounds/scene1.png
+
+D|Alice|Hello tml!|assets/characters/alice.png
+D|Bob|Lorem ipsum dolor sit amet, consectetur adipiscing elit.|assets/characters/bob.png
+D|Bob|3rd text!|assets/characters/alice.png
+
+C|What will you do?
+# test comment
+O|Explore the forest...Explore the forest...Explore the forest...Explore the forest...Explore the forest...|code:exploreForest
+# test comment
+O|Rest here|code:restHere|cond:stat1>-1
+# test comment
+O|Third choice|code:thirdChoice
+# test comment
+O|Fourth choice|code:fourthChoice
+
+D|Alice|Alice breeze passes...|assets/characters/alice.png
+D|Bob|A breeze passes...|assets/characters/bob.png
