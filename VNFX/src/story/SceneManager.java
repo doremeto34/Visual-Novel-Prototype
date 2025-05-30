@@ -4,9 +4,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BooleanSupplier;
 
+import main.DialogueController;
 import main.GameScreenController;
 import main.PlayerStats;
-import main.SceneActionHandler;
 
 import java.util.List;
 import java.io.*;
@@ -16,15 +16,14 @@ public class SceneManager {
     private static Map<Integer, Scene> scenes = new HashMap<>();
     private GameScreenController gsController;
     private PlayerStats playerStats;
-    private SceneActionHandler handler;
+    private DialogueController dController;
 
     // Map action keys (from code:) to actual Runnable logic
     private Map<String, Runnable> codeMap = new HashMap<>();
 
-    public SceneManager(PlayerStats playerStats, SceneActionHandler handler) {
-        this.handler = handler;
+    public SceneManager(PlayerStats playerStats, DialogueController handler) {
+        this.dController = handler;
         this.playerStats = playerStats;
-        System.out.println("SceneManager created with handler: " + handler);
         registerCodeActions();
         loadAllScenes();
     }
@@ -32,7 +31,7 @@ public class SceneManager {
     private void registerCodeActions() {
         codeMap.put("exploreForest", () -> {
             if (playerStats.stat1 > -1) {
-            	handler.transitionToScene(2);
+            	dController.transitionToScene(2);
             } else {
                 System.out.println("You are too weak to explore!");
             }
@@ -40,6 +39,7 @@ public class SceneManager {
 
         codeMap.put("restHere", () -> {
             playerStats.stat1 += 20;
+            dController.transitionToMinigame(dController.gsController.getPrimaryStage(), "quiz1", 2);
             System.out.println("You regained health by resting.");
         });
 
@@ -54,13 +54,13 @@ public class SceneManager {
         });
         
         codeMap.put("gotoScene1", () -> {
-        	handler.transitionToScene(1);
+        	dController.transitionToScene(1);
         });
         codeMap.put("gotoScene2", () -> {
-        	handler.transitionToScene(2);
+        	dController.transitionToScene(2);
         });
         codeMap.put("gotoScene3", () -> {
-        	handler.transitionToScene(3);
+        	dController.transitionToScene(3);
         });
     }
 
@@ -105,13 +105,14 @@ public class SceneManager {
                 if (line.isEmpty() || line.startsWith("#")) continue;
 
                 if (line.startsWith("D|")) {
-                    String[] parts = line.split("\\|", 4);  // D|speaker|text|image
+                    String[] parts = line.split("\\|", 5);  // D|speaker|text|image
 
                     String speaker = parts[1];
                     String text = parts.length > 2 ? parts[2].replace("\\\\n", "\n") : null;
                     String image = parts.length > 3 ? parts[3] : null;
+                    String characterAnimation = parts.length > 4 ? parts[4]:null;
 
-                    entries.add(new TextDialogueEntry(speaker, text, image));
+                    entries.add(new TextDialogueEntry(speaker, text, image, characterAnimation));
                 } else if (line.startsWith("C|")) {
                 	String characterPath = line.substring(2).trim();
                     List<Choice> choices = new ArrayList<>();

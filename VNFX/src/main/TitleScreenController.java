@@ -104,9 +104,7 @@ public class TitleScreenController {
             // Set the stage reference in controller BEFORE setting scene
             gsController.setPrimaryStage(stage);
             
-            // Now create the save/load panel, or do any stage-dependent init
-            gsController.createSaveLoadPanel();
-            
+            // Now create the save/load panel, or do any stage-dependent init            
             stage.setScene(new Scene(root));
             stage.setTitle("VNFX");
             stage.show();

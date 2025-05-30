@@ -3,12 +3,12 @@ package story;
 public class TextDialogueEntry extends DialogueEntry {
     private String speaker;
     private String text;
-    private String characterPath;
 
-    public TextDialogueEntry(String speaker, String text, String characterPath) {
+    public TextDialogueEntry(String speaker, String text, String characterPath, String characterAnimation) {
         this.speaker = speaker;
         this.text = text;
         this.characterPath = characterPath;
+        this.characterAnimation = characterAnimation;
     }
 
     public String getSpeaker() {
@@ -19,7 +19,4 @@ public class TextDialogueEntry extends DialogueEntry {
         return text;
     }
 
-    public String getCharacterPath() {
-        return characterPath;
-    }
 }

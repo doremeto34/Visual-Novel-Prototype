@@ -10,21 +10,27 @@ import java.awt.Dimension;
 import java.util.List;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.IOException;
 
 import javax.swing.ImageIcon;
 import javax.swing.Timer;
 
 import javafx.application.Platform;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
+import javafx.stage.Stage;
 
-public class DialogueController implements SceneActionHandler {
-    private final GameScreenController gsController;
-    private final PlayerStats playerStats;
-    private Scene currentScene;
+public class DialogueController {
+    public final GameScreenController gsController;
+    public final PlayerStats playerStats;
+    private story.Scene currentScene;
     
-    Timer typewriterTimer;
+    private Timer typewriterTimer;
     private int charIndex = 0;
     private String fullText = "";
 
@@ -33,7 +39,7 @@ public class DialogueController implements SceneActionHandler {
         this.playerStats = playerStats;
     }
     
-    public void setScene(Scene scene) {
+    public void setScene(story.Scene scene) {
         this.currentScene = scene;
     }
 
@@ -46,12 +52,12 @@ public class DialogueController implements SceneActionHandler {
             	String characterPath = choiceEntry.getCharacterPath();
             	System.out.println(characterPath);
             	if (characterPath != null) {
+            		
             		gsController.removeCharacterImage();
-                    // Create and display the new character image
                     CharacterImage characterImage = new CharacterImage(characterPath, 400, 533);
                     characterImage.setPosition(440, 100); // example position
-                    characterImage.fadeIn(500); // fade in over 500ms
-
+                    characterImage.setOpacity(1);
+                    characterImage.fadeIn(500);
                     gsController.setCharacterImage(characterImage);
                     gsController.getBackgroundPane().getChildren().add(0,characterImage.getImageView());
                 }
@@ -72,7 +78,7 @@ public class DialogueController implements SceneActionHandler {
         String speaker = textEntry.getSpeaker();
         String text = textEntry.getText();
         String characterPath = textEntry.getCharacterPath();
-        System.out.println("Character Path: " + characterPath);
+        String characterAnimation = textEntry.getCharacterAnimation();
 
         if (speaker != null && !speaker.isEmpty()) {
             gsController.getNameLabel().setText(speaker);
@@ -83,11 +89,12 @@ public class DialogueController implements SceneActionHandler {
 
         if (characterPath != null) {
         	gsController.removeCharacterImage();
-            // Create and display the new character image
             CharacterImage characterImage = new CharacterImage(characterPath, 400, 533);
             characterImage.setPosition(440, 100); // example position
-            characterImage.fadeIn(500); // fade in over 500ms
-
+            if(characterAnimation!=null && characterAnimation.equals("fade"))
+            	characterImage.fadeIn(500);
+            else
+            	characterImage.setOpacity(1);
             gsController.setCharacterImage(characterImage);
             gsController.getBackgroundPane().getChildren().add(0,characterImage.getImageView());
         }
@@ -130,7 +137,6 @@ public class DialogueController implements SceneActionHandler {
         });
     }
 
-    @Override
     public void transitionToScene(int sceneId) {
         playerStats.sceneId = sceneId;
         playerStats.dialogueIndex = 0;
@@ -146,9 +152,26 @@ public class DialogueController implements SceneActionHandler {
             return;
         }
 
-        //ImageIcon bgIcon = ImageUtils.loadScaledImage(currentScene.backgroundPath, 1280, 720);
         FXUtils.setBackgroundImage(gsController.getBackgroundPane(), currentScene.backgroundPath);
         showNextDialogue();
+    }
+    
+    public void transitionToMinigame(Stage primaryStage, String minigameId,int returnSceneId) {
+    	try {
+    		String MINIGAME_FXML_FILE_PATH = "/ui/Minigame.fxml";
+    		FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(MINIGAME_FXML_FILE_PATH));
+
+    		MinigameController minigameController = new MinigameController(gsController,playerStats,minigameId,returnSceneId);
+    		fxmlLoader.setController(minigameController);
+        
+    		Parent root = fxmlLoader.load();
+        
+    		primaryStage.setScene(new Scene(root));
+    		primaryStage.setTitle("VNFX");
+    		primaryStage.show();
+    	} catch (IOException e) {
+    		e.printStackTrace();
+    	}
     }
     /*
     private void startTypewriterEffect(String text) {

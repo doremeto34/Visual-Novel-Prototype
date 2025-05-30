@@ -1,8 +1,8 @@
 assets/backgrounds/scene1.png
 
-D|Alice|Hello tml!|assets/characters/alice.png
-D|Bob|Lorem ipsum dolor sit amet, consectetur adipiscing elit.|assets/characters/bob.png
-D|Bob|3rd text!|assets/characters/alice.png
+D|Alice|Hello tml!|assets/characters/alice.png|fade
+D|Bob|Lorem ipsum dolor sit amet, consectetur adipiscing elit.|assets/characters/bob.png|fade
+D|Bob|3rd text!|assets/characters/alice.png|fade
 
 C|assets/characters/bob.png
 # test comment
@@ -16,5 +16,5 @@ O|Fourth choice|code:
 O|Explore the forest...Lorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elit|code:exploreForest
 
 
-D|Alice|Alice breeze passes...|assets/characters/alice.png
-D|Bob|A breeze passes...|assets/characters/bob.png
+#D|Alice|Alice breeze passes...|assets/characters/alice.png|fade
+#D|Bob|A breeze passes...|assets/characters/bob.png|fade

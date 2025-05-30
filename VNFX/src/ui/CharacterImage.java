@@ -19,6 +19,10 @@ public class CharacterImage {
     public ImageView getImageView() {
         return imageView;
     }
+    
+    public void setOpacity(int opacity) {
+    	imageView.setOpacity(opacity);
+    }
 
     public void setPosition(double x, double y) {
         imageView.setLayoutX(x);

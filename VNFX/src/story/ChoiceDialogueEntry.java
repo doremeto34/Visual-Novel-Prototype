@@ -5,7 +5,6 @@ import java.util.List;
 
 public class ChoiceDialogueEntry extends DialogueEntry {
 	private String text;
-    private String characterPath;
     private List<Choice> choices;
 
     public ChoiceDialogueEntry(String characterPath,List<Choice> choices) {

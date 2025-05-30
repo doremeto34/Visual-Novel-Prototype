@@ -12,6 +12,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
@@ -22,6 +24,7 @@ import story.SceneManager;
 import ui.CharacterImage;
 import ui.ChoicePanel;
 import ui.ClickIndicator;
+import ui.PhonePanel;
 import ui.SaveLoadPanel;
 import util.FXUtils;
 
@@ -30,7 +33,7 @@ public class GameScreenController {
 	public DialogueController dialogueController;
 	private SceneManager sceneManager;
 	private PlayerStats playerStats;
-	private Scene currentScene;
+	Scene currentScene;
 	
 	public GameScreenController(PlayerStats playerStats) {
 		this.playerStats = playerStats;
@@ -67,6 +70,9 @@ public class GameScreenController {
 
     @FXML
     private Button saveButton;
+    
+    @FXML
+    private Button phoneButton;
 
     @FXML
     void dialoguePaneClicked(MouseEvent event) {
@@ -104,7 +110,13 @@ public class GameScreenController {
         });
     }
 
-
+    @FXML
+    void phoneButtonPressed(ActionEvent event) {
+    	if (phonePanel != null) {
+            phonePanel.showIn(backgroundPane);
+        }
+    }
+    
     @FXML
     void loadButtonPressed(ActionEvent event) {
     	if (saveLoadPanel != null) {
@@ -125,13 +137,13 @@ public class GameScreenController {
         }
     }
     
-    // DIY Componentt
+    // DIY Component
     private ClickIndicator clickIndicator;
     private ChoicePanel choicePanel;
     private SaveLoadPanel saveLoadPanel;
     private Stage primaryStage;
     private CharacterImage characterImage;
-
+    private PhonePanel phonePanel;
 
     public void setCharacterImage(CharacterImage image) {
     	this.characterImage = image;
@@ -147,6 +159,9 @@ public class GameScreenController {
     public void setPrimaryStage(Stage stage) {
         this.primaryStage = stage;
     }
+    public Stage getPrimaryStage() {
+    	return primaryStage;
+    }
     
     public void createSaveLoadPanel() {
         if (saveLoadPanel == null && primaryStage != null) {
@@ -155,9 +170,15 @@ public class GameScreenController {
             saveLoadPanel.setVisible(false);
         }
     }
+    public void createPhonePanel() {
+        if (phonePanel == null) {
+            phonePanel = new PhonePanel(backgroundPane);
+            backgroundPane.getChildren().add(phonePanel);
+            phonePanel.setVisible(false);
+        }
+    }
 
-    @FXML
-    public void initialize() {
+    public void startup() {
     	clickIndicator = new ClickIndicator(); 
         dialoguePane.getChildren().add(clickIndicator);
         
@@ -175,13 +196,25 @@ public class GameScreenController {
         }
     	
         choicePanel = new ChoicePanel();
-        
+	    currentScene = sceneManager.getScene(playerStats.sceneId);
         FXUtils.setBackgroundImage(backgroundPane, currentScene.backgroundPath);
         
+        Image phoneIcon = new Image("file:assets/buttons/phone.png");
+        ImageView iconView = new ImageView(phoneIcon);
+        iconView.setFitHeight(80);
+        iconView.setPreserveRatio(true);
+        phoneButton.setGraphic(iconView);
+        phoneButton.setStyle("-fx-background-color: transparent;");
+        
+        createPhonePanel();
         
         dialogueController.showNextDialogue();
         
         createSaveLoadPanel();
+    }
+    @FXML
+    public void initialize() {
+    	startup();
     }
     
     public CharacterImage getCharacterImage() {
